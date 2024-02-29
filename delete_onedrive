@@ -1,0 +1,29 @@
+reg add HKCR /f /reg:64
+set "onedrive=%SYSTEMROOT%\SysWOW64\OneDriveSetup.exe"
+set "ExplorerReg1=HKEY_CLASSES_ROOT\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}"
+set "ExplorerReg2=HKEY_CLASSES_ROOT\Wow6432Node\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}"
+
+taskkill /F /IM OneDrive* 2>nul
+ping -n 2 127.0.0.1 >nul
+
+if not exist "%onedrive%" set "onedrive=%SYSTEMROOT%\System32\OneDriveSetup.exe"
+"%onedrive%" /uninstall
+ping -n 2 127.0.0.1 >nul
+
+echo Stopping explorer
+ping -n 1 127.0.0.1 >nul
+taskkill /F /IM explorer.exe 2>nul
+ping -n 3 127.0.0.1 >nul
+
+echo Removing leftover files
+rd /s /q "%USERPROFILE%\OneDrive" 2>nul
+rd /s /q "%LOCALAPPDATA%\Microsoft\OneDrive" 2>nul
+rd /s /q "%PROGRAMDATA%\Microsoft OneDrive" 2>nul
+if exist "%SYSTEMDRIVE%\OneDriveTemp" rd /s /q "%SYSTEMDRIVE%\OneDriveTemp" 2>nul
+
+echo Removing OneDrive from Windows Explorer
+reg add "%ExplorerReg1%" /v System.IsPinnedToNameSpaceTree /t REG_DWORD /d 0 /f
+reg add "%ExplorerReg2%" /v System.IsPinnedToNameSpaceTree /t REG_DWORD /d 0 /f
+
+echo Restarting Explorer that was shut down before.
+start explorer.exe
