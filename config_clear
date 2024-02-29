@@ -1,0 +1,1 @@
+del /q "%APPDATA%\Microsoft\Windows\Recent\AutomaticDestinations\*.automaticDestinations-ms
